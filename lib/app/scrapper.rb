@@ -13,9 +13,11 @@ require 'pry'
 #  end
 #  #p get_town_hall_email("http://annuaire-des-mairies.com/95/argenteuil.html")
 
-  @@identifian = ["bou", "ba", "dejmil"]
-  @@mail = ["bou@.com", "ba@.com", "djemil@.com"]
-
+#   @@identifian = ["bou", "ba", "dejmil"]
+#  @@mail = ["bou@.com", "ba@.com", "djemil@.com"]
+  @@email=[]
+  @@url_communes = []
+  @@result = []
  class Scrapper
 
   def initialize(name)
@@ -24,42 +26,42 @@ require 'pry'
   end
 
   def test_array
-    @hash = Hash[@@identifian.zip(@@mail)]
+    @hash = Hash[@@result.zip(@@email)]
     return @hash
   end
+
   def save_as_JSON
     File.open("../../db/email.JSON","w") do |f|
-      f.write(@hash.to_json)
+      f.write(@@result.to_json)
     end
   end
 
   def get_townhall_urls
     doc = Nokogiri::HTML(open('http://annuaire-des-mairies.com/val-d-oise.html'))
-    @url_communes = []
+   
     doc.xpath('//tr[2]//p//a/@href').each do |node|
-         @url_communes.push(node.text)
+         @@url_communes.push(node.text)
         
     end
-    return @result = @url_communes.map {|c| c.gsub('./', 'http://annuaire-des-mairies.com/')}
+    return @@result = @@url_communes.map {|c| c.gsub('./95/', '')}
   
   end
 
 
   def url_email_methode #urls_des_mairies
-  puts "le programme marche pas"
-  email=[]
+
   n = get_townhall_urls.count
   i = 0
   while i < n
    
     doc = Nokogiri::HTML(open("#{get_townhall_urls[i]}"))
     doc.xpath('//section[2]/div/table/tbody/tr[4]/td[2]').map do |x|
-       email.push(x.text)
+       @@email.push(x.text)
     end
-    p email[i]
+    @@email[i]
          i += 1
   end
-
+  return @@email
   end
 end
 
